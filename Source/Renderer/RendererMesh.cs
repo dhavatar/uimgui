@@ -83,7 +83,7 @@ namespace UImGui.Renderer
 			}
 		}
 
-		public void RenderDrawLists(CommandBuffer commandBuffer, ImDrawDataPtr drawData)
+		public void RenderDrawLists(RasterCommandBuffer commandBuffer, ImDrawDataPtr drawData)
 		{
 			Vector2 fbOSize = drawData.DisplaySize * drawData.FramebufferScale;
 
@@ -171,7 +171,7 @@ namespace UImGui.Renderer
 			_mesh.UploadMeshData(false);
 		}
 
-		private void CreateDrawCommands(CommandBuffer commandBuffer, ImDrawDataPtr drawData, Vector2 fbSize)
+		private void CreateDrawCommands(RasterCommandBuffer commandBuffer, ImDrawDataPtr drawData, Vector2 fbSize)
 		{
 			IntPtr prevTextureId = IntPtr.Zero;
 			Vector4 clipOffset = new Vector4(drawData.DisplayPos.x, drawData.DisplayPos.y,

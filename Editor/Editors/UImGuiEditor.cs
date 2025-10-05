@@ -1,7 +1,6 @@
 using ImGuiNET;
 using System.Text;
 using UImGui.Platform;
-using UImGui.Renderer;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,7 +11,6 @@ namespace UImGui.Editor
 	{
 		private SerializedProperty _doGlobalEvents;
 		private SerializedProperty _camera;
-		private SerializedProperty _renderFeature;
 		private SerializedProperty _renderer;
 		private SerializedProperty _platform;
 		private SerializedProperty _initialConfiguration;
@@ -37,10 +35,6 @@ namespace UImGui.Editor
 			EditorGUI.BeginChangeCheck();
 
 			EditorGUILayout.PropertyField(_doGlobalEvents);
-			if (RenderUtility.IsUsingURP())
-			{
-				EditorGUILayout.PropertyField(_renderFeature);
-			}
 
 			EditorGUILayout.PropertyField(_camera);
 			EditorGUILayout.PropertyField(_renderer);
@@ -72,7 +66,6 @@ namespace UImGui.Editor
 		{
 			_doGlobalEvents = serializedObject.FindProperty("_doGlobalEvents");
 			_camera = serializedObject.FindProperty("_camera");
-			_renderFeature = serializedObject.FindProperty("_renderFeature");
 			_renderer = serializedObject.FindProperty("_rendererType");
 			_platform = serializedObject.FindProperty("_platformType");
 			_initialConfiguration = serializedObject.FindProperty("_initialConfiguration");
@@ -111,11 +104,6 @@ namespace UImGui.Editor
 			if (_camera.objectReferenceValue == null)
 			{
 				_messages.AppendLine("Must assign a Camera.");
-			}
-
-			if (RenderUtility.IsUsingURP() && _renderFeature.objectReferenceValue == null)
-			{
-				_messages.AppendLine("Must assign a RenderFeature when using the URP.");
 			}
 
 #if !UNITY_2020_1_OR_NEWER

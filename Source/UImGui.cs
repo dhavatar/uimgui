@@ -1,11 +1,12 @@
 using ImGuiNET;
+using System.Linq;
 using UImGui.Assets;
 using UImGui.Events;
 using UImGui.Platform;
 using UImGui.Renderer;
 using UnityEngine;
 using UnityEngine.Rendering;
-
+using UnityEngine.Rendering.Universal;
 
 namespace UImGui
 {
@@ -15,15 +16,16 @@ namespace UImGui
 		private Context _context;
 		private IRenderer _renderer;
 		private IPlatform _platform;
-		private CommandBuffer _renderCommandBuffer;
+#if !HAS_HDRP && !HAS_URP
+        private CommandBuffer _renderCommandBuffer;
+#endif
 
-		[SerializeField]
+        [SerializeField]
 		private Camera _camera = null;
 
-		[SerializeField]
-		private RenderImGui _renderFeature = null;
+        [SerializeField, HideInInspector] private RenderImGui _renderFeature = null;
 
-		[SerializeField]
+        [SerializeField]
 		private RenderType _rendererType = RenderType.Mesh;
 
 		[SerializeField]
@@ -82,13 +84,11 @@ namespace UImGui
 
 		private bool _isChangingCamera = false;
 
-		public CommandBuffer CommandBuffer => _renderCommandBuffer;
-
-		#region Events
+#region Events
 		public event System.Action<UImGui> Layout;
 		public event System.Action<UImGui> OnInitialize;
 		public event System.Action<UImGui> OnDeinitialize;
-		#endregion
+#endregion
 
 		public void Reload()
 		{
@@ -124,7 +124,34 @@ namespace UImGui
 		private void Awake()
 		{
 			_context = UImGuiUtility.CreateContext();
-		}
+
+#if HAS_URP
+            var urpAsset = GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset;
+            if (urpAsset == null)
+            {
+                Debug.LogError("Somehow could not grab the render pipeline.", gameObject);
+                return;
+            }
+
+            if (urpAsset.rendererDataList == null)
+            {
+                Debug.LogError("There's no render data on the current render pipeline.", gameObject);
+                return;
+            }
+
+            // Find and store the first instance of the RenderImGui in the render list
+            foreach (var renderData in urpAsset.rendererDataList)
+            {
+                _renderFeature = renderData.rendererFeatures.Where(x => x is RenderImGui)
+                    .FirstOrDefault() as RenderImGui;
+
+                if (_renderFeature != null)
+                {
+                    break;
+                }
+            }
+#endif
+        }
 
 		private void OnDestroy()
 		{
@@ -149,21 +176,21 @@ namespace UImGui
 				Fail(nameof(_renderFeature));
 			}
 
-			_renderCommandBuffer = RenderUtility.GetCommandBuffer(Constants.UImGuiCommandBuffer);
-
 			if (RenderUtility.IsUsingURP())
 			{
 #if HAS_URP
 				_renderFeature.Camera = _camera;
 #endif
-				_renderFeature.CommandBuffer = _renderCommandBuffer;
 			}
 			else if (!RenderUtility.IsUsingHDRP())
 			{
-				_camera.AddCommandBuffer(CameraEvent.AfterEverything, _renderCommandBuffer);
-			}
+#if !HAS_HDRP && !HAS_URP
+                _renderCommandBuffer = RenderUtility.GetCommandBuffer(Constants.UImGuiCommandBuffer);
+                _camera.AddCommandBuffer(CameraEvent.AfterEverything, _renderCommandBuffer);
+#endif
+            }
 
-			UImGuiUtility.SetCurrentContext(_context);
+            UImGuiUtility.SetCurrentContext(_context);
 
 			ImGuiIOPtr io = ImGui.GetIO();
 
@@ -186,12 +213,14 @@ namespace UImGui
 				Fail(nameof(_renderer));
 			}
 
-			if (_doGlobalEvents)
+            _renderFeature.renderer = _renderer;
+
+            if (_doGlobalEvents)
 			{
 				UImGuiUtility.DoOnInitialize(this);
 			}
 			OnInitialize?.Invoke(this);
-		}
+        }
 
 		private void OnDisable()
 		{
@@ -213,39 +242,33 @@ namespace UImGui
 #if HAS_URP
 					_renderFeature.Camera = null;
 #endif
-					_renderFeature.CommandBuffer = null;
 				}
 			}
 			else if(!RenderUtility.IsUsingHDRP())
 			{
-				if (_camera != null)
+#if !HAS_HDRP && !HAS_URP
+                if (_camera != null)
 				{
 					_camera.RemoveCommandBuffer(CameraEvent.AfterEverything, _renderCommandBuffer);
 				}
-			}
+#endif
+            }
 
-			if (_renderCommandBuffer != null)
-			{
-				RenderUtility.ReleaseCommandBuffer(_renderCommandBuffer);
-			}
-
-			_renderCommandBuffer = null;
-
-			if (_doGlobalEvents)
+            if (_doGlobalEvents)
 			{
 				UImGuiUtility.DoOnDeinitialize(this);
 			}
 			OnDeinitialize?.Invoke(this);
-		}
+        }
 
 		private void Update()
 		{
-			if (RenderUtility.IsUsingHDRP())
+            if (RenderUtility.IsUsingHDRP())
 				return; // skip update call in hdrp
-			DoUpdate(this.CommandBuffer);
+			DoUpdate();
 		}
 
-		internal void DoUpdate(CommandBuffer buffer)
+		internal void DoUpdate()
 		{
 			UImGuiUtility.SetCurrentContext(_context);
 			ImGuiIOPtr io = ImGui.GetIO();
@@ -276,9 +299,11 @@ namespace UImGui
 			}
 
 			Constants.DrawListMarker.Begin(this);
-			_renderCommandBuffer.Clear();
-			_renderer.RenderDrawLists(buffer, ImGui.GetDrawData());
-			Constants.DrawListMarker.End();
+#if !HAS_HDRP && !HAS_URP
+            _renderCommandBuffer.Clear();
+#endif
+            //_renderer.RenderDrawLists(buffer, ImGui.GetDrawData());
+            Constants.DrawListMarker.End();
 
 			if (_isChangingCamera)
 			{

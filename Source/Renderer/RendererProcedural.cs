@@ -73,7 +73,7 @@ namespace UImGui.Renderer
 			_argumentsBuffer?.Release(); _argumentsBuffer = null;
 		}
 
-		public void RenderDrawLists(CommandBuffer cmd, ImDrawDataPtr drawData)
+		public void RenderDrawLists(RasterCommandBuffer cmd, ImDrawDataPtr drawData)
 		{
 			Vector2 fbSize = drawData.DisplaySize * drawData.FramebufferScale;
 
@@ -91,7 +91,7 @@ namespace UImGui.Renderer
 			Constants.CreateDrawComandsMarker.End();
 
 			cmd.EndSample(Constants.ExecuteDrawCommandsMarker);
-		}
+        }
 
 		private void CreateOrResizeVtxBuffer(ref ComputeBuffer buffer, int count)
 		{
@@ -189,7 +189,7 @@ namespace UImGui.Renderer
 			}
 		}
 
-		private void CreateDrawCommands(CommandBuffer cmd, ImDrawDataPtr drawData, Vector2 fbSize)
+		private void CreateDrawCommands(RasterCommandBuffer cmd, ImDrawDataPtr drawData, Vector2 fbSize)
 		{
 			IntPtr prevTextureId = IntPtr.Zero;
 			Vector4 clipOffst = new Vector4(drawData.DisplayPos.x, drawData.DisplayPos.y,
@@ -247,6 +247,6 @@ namespace UImGui.Renderer
 				vtxOf += drawList.VtxBuffer.Size;
 			}
 			cmd.DisableScissorRect();
-		}
+        }
 	}
 }
