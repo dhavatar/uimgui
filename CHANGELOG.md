@@ -3,7 +3,12 @@
 ##### Refactors
 
 * Modified the render feature to use the Render Graph API pipeline
-* NOTE: Only tested with URP, HDRP is most likely not working yet
+* UImGui will find the first render feature automatically in the render asset list instead of setting it manually
+* NOTE: Only tested with URP, HDRP is most likely not working
+
+##### Other Changes
+
+* Changed defines to include features rather than exclude to simplify setup as ImPlot, ImGuizmo, and ImPlot does not work yet
 
 #### 5.0.0 (2024-03-15)
 
