@@ -1,3 +1,10 @@
+#### 5.0.1 (2025-10-04)
+
+##### Refactors
+
+* Modified the render feature to use the Render Graph API pipeline
+* NOTE: Only tested with URP, HDRP is most likely not working yet
+
 #### 5.0.0 (2024-03-15)
 
 ##### New Features

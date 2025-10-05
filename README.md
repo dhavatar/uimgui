@@ -6,6 +6,9 @@ UImGui (Unity ImGui) is an UPM package for the immediate mode GUI library using 
 This project is based on [RG.ImGui](https://github.com/realgamessoftware/dear-imgui-unity) project. 
 This project use [FreeType](https://github.com/ocornut/imgui/tree/master/misc/freetype) as default renderer.
 
+# UImGui with Unity 6+
+This fork has changes to have UImGui work with Render Graph API for Unity 6+ versions. Currently, this is only tested for URP and no changes have been made with HDRP, so that part is untested. The refactor also simplified the UImGui component so no developer mode is needed to setup the render feature. It should be ready to go without any special setup when placed in the scene. Only setup requires is setting the camera reference.
+
 **Using imgui 1.90.1**
 
 ----
