@@ -13,11 +13,15 @@ namespace UImGui
 	// TODO: Check Multithread run.
 	public class UImGui : MonoBehaviour
 	{
-		private Context _context;
+        private Context _context;
 		private IRenderer _renderer;
 		private IPlatform _platform;
 #if !HAS_HDRP && !HAS_URP
         private CommandBuffer _renderCommandBuffer;
+#endif
+
+#if HAS_URP
+        private RenderImGui.Settings _settings;
 #endif
 
         [SerializeField]
@@ -126,11 +130,16 @@ namespace UImGui
 			_context = UImGuiUtility.CreateContext();
 
 #if HAS_URP
-            var urpAsset = GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset;
+            _settings = new RenderImGui.Settings();
+            var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
             if (urpAsset == null)
             {
-                Debug.LogError("Somehow could not grab the render pipeline.", gameObject);
-                return;
+                urpAsset = GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset;
+                if (urpAsset == null)
+                {
+                    Debug.LogError("Somehow could not grab the render pipeline.", gameObject);
+                    return;
+                }
             }
 
             if (urpAsset.rendererDataList == null)
@@ -147,6 +156,7 @@ namespace UImGui
 
                 if (_renderFeature != null)
                 {
+                    _renderFeature.settings = _settings;
                     break;
                 }
             }
@@ -213,7 +223,9 @@ namespace UImGui
 				Fail(nameof(_renderer));
 			}
 
-            _renderFeature.renderer = _renderer;
+#if HAS_URP
+            _settings.renderer = _renderer;
+#endif
 
             if (_doGlobalEvents)
 			{

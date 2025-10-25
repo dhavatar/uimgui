@@ -14,7 +14,14 @@ namespace UImGui.Renderer
 #if HAS_URP
 	internal class RenderImGui : ScriptableRendererFeature
 	{
-        public IRenderer renderer;
+        // Wrapper around the renderer so UImGui can update and change it and the render pass won't lose access
+        // due to the pointer changing with a new object.
+        public class Settings
+        {
+            public IRenderer renderer;
+        }
+
+        public Settings settings;
 
         [HideInInspector]
         public Camera Camera;
@@ -24,7 +31,7 @@ namespace UImGui.Renderer
 
         public override void Create()
         {
-            _commandBufferPass = new CommandBufferPass(renderer)
+            _commandBufferPass = new CommandBufferPass(settings)
             {
                 renderPassEvent = RenderPassEvent,
             };
@@ -50,11 +57,11 @@ namespace UImGui.Renderer
 #else
         private class CommandBufferPass : ScriptableRenderPass
         {
-            private IRenderer renderer;
+            private Settings settings;
 
-            public CommandBufferPass(IRenderer renderer)
+            public CommandBufferPass(Settings settings)
             {
-                this.renderer = renderer;
+                this.settings = settings;
             }
 
             private class PassData
@@ -81,12 +88,12 @@ namespace UImGui.Renderer
 
             private void ExecutePass(PassData data, RasterGraphContext context)
             {
-                if (renderer ==  null)
+                if (settings.renderer ==  null)
                 {
                     return;
                 }
 
-                renderer.RenderDrawLists(context.cmd, ImGui.GetDrawData());
+                settings.renderer.RenderDrawLists(context.cmd, ImGui.GetDrawData());
             }
         }
 #endif
