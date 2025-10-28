@@ -39,7 +39,7 @@ namespace UImGui.Renderer
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (Camera != renderingData.cameraData.camera) return;
+            if (Camera != renderingData.cameraData.camera || Camera == null) return;
 
             renderer.EnqueuePass(_commandBufferPass);
         }
@@ -88,7 +88,7 @@ namespace UImGui.Renderer
 
             private void ExecutePass(PassData data, RasterGraphContext context)
             {
-                if (settings.renderer ==  null)
+                if (settings == null || settings.renderer ==  null)
                 {
                     return;
                 }

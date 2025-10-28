@@ -10,7 +10,8 @@ namespace UImGui.Editor
 	internal class UImGuiEditor : UnityEditor.Editor
 	{
 		private SerializedProperty _doGlobalEvents;
-		private SerializedProperty _camera;
+        private SerializedProperty _useMainCamera;
+        private SerializedProperty _camera;
 		private SerializedProperty _renderer;
 		private SerializedProperty _platform;
 		private SerializedProperty _initialConfiguration;
@@ -36,7 +37,11 @@ namespace UImGui.Editor
 
 			EditorGUILayout.PropertyField(_doGlobalEvents);
 
-			EditorGUILayout.PropertyField(_camera);
+            EditorGUILayout.PropertyField(_useMainCamera);
+            if (!_useMainCamera.boolValue)
+            {
+                EditorGUILayout.PropertyField(_camera);
+            }
 			EditorGUILayout.PropertyField(_renderer);
 			EditorGUILayout.PropertyField(_platform);
 			EditorGUILayout.PropertyField(_initialConfiguration);
@@ -65,7 +70,8 @@ namespace UImGui.Editor
 		private void OnEnable()
 		{
 			_doGlobalEvents = serializedObject.FindProperty("_doGlobalEvents");
-			_camera = serializedObject.FindProperty("_camera");
+            _useMainCamera = serializedObject.FindProperty("_useMainCamera");
+            _camera = serializedObject.FindProperty("_camera");
 			_renderer = serializedObject.FindProperty("_rendererType");
 			_platform = serializedObject.FindProperty("_platformType");
 			_initialConfiguration = serializedObject.FindProperty("_initialConfiguration");

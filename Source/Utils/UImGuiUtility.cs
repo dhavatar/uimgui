@@ -39,6 +39,11 @@ namespace UImGui
 
 		internal static void DestroyContext(Context context)
 		{
+            if (context == null)
+            {
+                return;
+            }
+
 			ImGui.DestroyContext(context.ImGuiContext);
 
 #if UIMGUI_USE_IMNODES
