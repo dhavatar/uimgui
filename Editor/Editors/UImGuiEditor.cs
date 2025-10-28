@@ -110,7 +110,7 @@ namespace UImGui.Editor
 			EditorGUILayout.Space();
 
 			_messages.Clear();
-			if (_camera.objectReferenceValue == null)
+			if (_camera.objectReferenceValue == null && !_useMainCamera.boolValue)
 			{
 				_messages.AppendLine("Must assign a Camera.");
 			}
