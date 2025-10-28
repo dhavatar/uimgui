@@ -24,6 +24,8 @@ namespace UImGui
         private RenderImGui.Settings _settings;
 #endif
 
+        [SerializeField] private bool _singletonMode;
+
         [Tooltip("If checked, will always try to find the main camera and ignors the camera setting below.")]
         [SerializeField] private bool _useMainCamera;
         [SerializeField] private Camera _camera = null;
@@ -75,6 +77,7 @@ namespace UImGui
 
         private bool _isChangingCamera = false;
 
+        private static UImGui _instance;
 #region Events
         public event System.Action<UImGui> Layout;
         public event System.Action<UImGui> OnInitialize;
@@ -120,6 +123,18 @@ namespace UImGui
 
         private void Awake()
         {
+            if (_singletonMode)
+            {
+                if (_instance != null)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+
             _context = UImGuiUtility.CreateContext();
 
 #if HAS_URP

@@ -191,6 +191,11 @@ namespace UImGui.Renderer
 
 		private void CreateDrawCommands(RasterCommandBuffer cmd, ImDrawDataPtr drawData, Vector2 fbSize)
 		{
+            if (_material == null)
+            {
+                return;
+            }
+
 			IntPtr prevTextureId = IntPtr.Zero;
 			Vector4 clipOffst = new Vector4(drawData.DisplayPos.x, drawData.DisplayPos.y,
 				drawData.DisplayPos.x, drawData.DisplayPos.y);

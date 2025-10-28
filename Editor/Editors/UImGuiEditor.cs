@@ -10,6 +10,7 @@ namespace UImGui.Editor
 	internal class UImGuiEditor : UnityEditor.Editor
 	{
 		private SerializedProperty _doGlobalEvents;
+        private SerializedProperty _singletonMode;
         private SerializedProperty _useMainCamera;
         private SerializedProperty _camera;
 		private SerializedProperty _renderer;
@@ -36,6 +37,7 @@ namespace UImGui.Editor
 			EditorGUI.BeginChangeCheck();
 
 			EditorGUILayout.PropertyField(_doGlobalEvents);
+            EditorGUILayout.PropertyField(_singletonMode);
 
             EditorGUILayout.PropertyField(_useMainCamera);
             if (!_useMainCamera.boolValue)
@@ -70,6 +72,7 @@ namespace UImGui.Editor
 		private void OnEnable()
 		{
 			_doGlobalEvents = serializedObject.FindProperty("_doGlobalEvents");
+            _singletonMode = serializedObject.FindProperty("_singletonMode");
             _useMainCamera = serializedObject.FindProperty("_useMainCamera");
             _camera = serializedObject.FindProperty("_camera");
 			_renderer = serializedObject.FindProperty("_rendererType");
