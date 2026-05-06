@@ -14,7 +14,9 @@ namespace UImGui.Editor
 		private SerializedProperty _camera;
 		private SerializedProperty _renderFeature;
 		private SerializedProperty _renderer;
-		private SerializedProperty _platform;
+        private SerializedProperty _singletonMode;
+        private SerializedProperty _defaultUseMainCamera;
+        private SerializedProperty _platform;
 		private SerializedProperty _initialConfiguration;
 		private SerializedProperty _fontAtlasConfiguration;
 		private SerializedProperty _fontCustomInitializer;
@@ -34,14 +36,11 @@ namespace UImGui.Editor
 
 			EditorGUI.BeginChangeCheck();
 
-			EditorGUILayout.PropertyField(_doGlobalEvents);
-			if (RenderUtility.IsUsingURP())
-			{
-				EditorGUILayout.PropertyField(_renderFeature);
-			}
-
-			EditorGUILayout.PropertyField(_camera);
-			EditorGUILayout.PropertyField(_renderer);
+            EditorGUILayout.PropertyField(_singletonMode);
+            EditorGUILayout.PropertyField(_doGlobalEvents);
+            EditorGUILayout.PropertyField(_defaultUseMainCamera);
+            EditorGUILayout.PropertyField(_camera);
+            EditorGUILayout.PropertyField(_renderer);
 			EditorGUILayout.PropertyField(_platform);
 			EditorGUILayout.PropertyField(_initialConfiguration);
 			EditorGUILayout.PropertyField(_fontAtlasConfiguration);
@@ -70,7 +69,8 @@ namespace UImGui.Editor
 		{
 			_doGlobalEvents = serializedObject.FindProperty("_doGlobalEvents");
 			_camera = serializedObject.FindProperty("_camera");
-			_renderFeature = serializedObject.FindProperty("_renderFeature");
+            _singletonMode = serializedObject.FindProperty("_singletonMode");
+            _defaultUseMainCamera = serializedObject.FindProperty("_defaultUseMainCamera");
 			_renderer = serializedObject.FindProperty("_rendererType");
 			_platform = serializedObject.FindProperty("_platformType");
 			_initialConfiguration = serializedObject.FindProperty("_initialConfiguration");
@@ -98,14 +98,9 @@ namespace UImGui.Editor
 			EditorGUILayout.Space();
 
 			_messages.Clear();
-			if (_camera.objectReferenceValue == null)
+			if (_camera.objectReferenceValue == null && !_defaultUseMainCamera.boolValue)
 			{
 				_messages.AppendLine("Must assign a Camera.");
-			}
-
-			if (RenderUtility.IsUsingURP() && _renderFeature.objectReferenceValue == null)
-			{
-				_messages.AppendLine("Must assign a RenderFeature when using the URP.");
 			}
 
 			SerializedProperty configFlags = _initialConfiguration.FindPropertyRelative("ImGuiConfig");

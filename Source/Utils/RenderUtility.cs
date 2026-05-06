@@ -3,6 +3,7 @@ using UImGui.Renderer;
 using UImGui.Texture;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
+using System.Linq;
 #if HAS_URP
 using System.Collections.Generic;
 using System.Reflection;
@@ -51,37 +52,32 @@ namespace UImGui
 #if HAS_URP
 		public static RenderImGui FindRenderFeatureInCurrentPipeline()
 		{
-			if (GraphicsSettings.currentRenderPipeline is not UniversalRenderPipelineAsset pipeline)
-				return null;
+			var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (urpAsset == null)
+            {
+                urpAsset = GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset;
+                if (urpAsset == null)
+                {
+                    return null;
+                }
+            }
 
-			var rendererDataListField = typeof(UniversalRenderPipelineAsset).GetField(
-				"m_RendererDataList",
-				BindingFlags.Instance | BindingFlags.NonPublic);
-			if (rendererDataListField?.GetValue(pipeline) is not ScriptableRendererData[] rendererDataList)
-				return null;
+            if (urpAsset.rendererDataList == null)
+            {
+                return null;
+            }
 
-			var rendererFeaturesField = typeof(ScriptableRendererData).GetField(
-				"m_RendererFeatures",
-				BindingFlags.Instance | BindingFlags.NonPublic);
-			if (rendererFeaturesField == null)
-				return null;
+            // Find and store the first instance of the RenderImGui in the render list
+            RenderImGui result = null;
+            foreach (var renderData in urpAsset.rendererDataList)
+            {
+                result = renderData.rendererFeatures.Where(x => x is RenderImGui)
+                    .FirstOrDefault() as RenderImGui;
+                if (result != null)
+                    break;
+            }
 
-			foreach (var rendererData in rendererDataList)
-			{
-				if (rendererData == null)
-					continue;
-
-				if (rendererFeaturesField.GetValue(rendererData) is not List<ScriptableRendererFeature> rendererFeatures)
-					continue;
-
-				foreach (var feature in rendererFeatures)
-				{
-					if (feature is RenderImGui renderImGui)
-						return renderImGui;
-				}
-			}
-
-			return null;
+			return result;
 		}
 #endif
 
