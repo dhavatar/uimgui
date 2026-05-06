@@ -28,12 +28,12 @@
     {
       "displayName": "Demo Window",
       "description": "A sample scene prefab and script that render the Dear ImGui demo window in Unity.",
-      "path": "Sample~"
+      "path": "Samples~/SampleDemoWindow"
     },
     {
       "displayName": "Font Atlas NewClear-mincho (WIP)",
       "description": "A sample script that demonstrates the WIP font atlas flow using NewClear-mincho.ttf.",
-      "path": "Sample~"
+      "path": "Samples~/SampleFontAtlas"
     }
   ],
   "repository": {
